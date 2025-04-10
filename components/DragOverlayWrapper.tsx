@@ -7,7 +7,6 @@ import useDesigner from "./hooks/useDesigner";
 function DragOverlayWrapper() {
   const { elements } = useDesigner();
   const [draggedItem, setDraggedItem] = useState<Active | null>(null);
-
   useDndMonitor({
     onDragStart: (event) => {
       setDraggedItem(event.active);
