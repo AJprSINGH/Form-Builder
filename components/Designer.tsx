@@ -169,7 +169,7 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
     },
   });
 
-  if (draggable.isDragging) return null; // temporary remove the element from designer
+  if (draggable.isDragging) return null;
 
   const DesignerElement = FormElements[element.type].designerComponent;
   return (

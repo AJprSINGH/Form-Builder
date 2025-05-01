@@ -1,20 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import useDesigner from "./hooks/useDesigner";
-import { FormElements } from "./FormElements";
+import { FormElement, FormElementInstance, FormElements } from "./FormElements";
 import { AiOutlineClose } from "react-icons/ai";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
+import NestedFormFieldPropsPanel from "./fields/NestedFormFieldPropsPanel";
 
 function PropertiesFormSidebar() {
-  const { selectedElement, setSelectedElement } = useDesigner();
+  const { selectedElement, setSelectedElement, updateElement } =
+    useDesigner();
+
+  const [element, setElement] = useState<FormElementInstance | null>(selectedElement);
+
+  const updateElementProps = (elementInstance: FormElementInstance) => {
+    updateElement(elementInstance.id, elementInstance);
+    setElement(elementInstance);
+  };
+
   if (!selectedElement) return null;
 
-  const PropertiesForm = FormElements[selectedElement?.type].propertiesComponent;
+  let PropertiesForm;
+
+  if (selectedElement.type === "NestedFormField") {
+    PropertiesForm = NestedFormFieldPropsPanel;
+  } else {
+    PropertiesForm = FormElements[selectedElement.type].propertiesComponent;
+  }
 
   return (
     <div className="flex flex-col p-2">
       <div className="flex justify-between items-center">
-        <p className="text-sm text-foreground/70">Element properties</p>
+        <p className="text-sm text-foreground/70">Properties</p>
         <Button
           size={"icon"}
           variant={"ghost"}
@@ -26,7 +42,10 @@ function PropertiesFormSidebar() {
         </Button>
       </div>
       <Separator className="mb-4" />
-      <PropertiesForm elementInstance={selectedElement} />
+      <PropertiesForm
+        elementInstance={element as FormElementInstance}
+        updateElement={updateElementProps}
+      />
     </div>
   );
 }

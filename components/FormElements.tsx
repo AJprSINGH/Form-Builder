@@ -9,7 +9,10 @@ import { SubTitleFieldFormElement } from "./fields/SubTitleField";
 import { TextAreaFormElement } from "./fields/TextAreaField";
 import { TextFieldFormElement } from "./fields/TextField";
 import { TitleFieldFormElement } from "./fields/TitleField";
+import { NestedFormFieldFormElement } from "./fields/NestedFormField";
 import { ASPFieldFormElement } from "./fields/ASPField";
+import { NestedFormFieldFormElement as NestedFormElement } from "./fields/NestedFormField";
+
 
 export type ElementsType =
   | "ASPField"
@@ -23,7 +26,9 @@ export type ElementsType =
   | "TextAreaField"
   | "DateField"
   | "SelectField"
-  | "CheckboxField";
+  | "CheckboxField"
+  | "NestedFormField"
+  | "NestedForm";
 
 export type SubmitFunction = (key: string, value: string) => void;
 
@@ -48,6 +53,7 @@ export type FormElement = {
   }>;
   propertiesComponent: React.FC<{
     elementInstance: FormElementInstance;
+    updateElement: (element: FormElementInstance) => void;
   }>;
 
   validate: (formElement: FormElementInstance, currentValue: string) => boolean;
@@ -75,4 +81,6 @@ export const FormElements: FormElementsType = {
   DateField: DateFieldFormElement,
   SelectField: SelectFieldFormElement,
   CheckboxField: CheckboxFieldFormElement,
+  NestedFormField: NestedFormFieldFormElement,
+  NestedForm: NestedFormElement,
 };
