@@ -9,8 +9,10 @@ import { SubTitleFieldFormElement } from "./fields/SubTitleField";
 import { TextAreaFormElement } from "./fields/TextAreaField";
 import { TextFieldFormElement } from "./fields/TextField";
 import { TitleFieldFormElement } from "./fields/TitleField";
+import { ASPFieldFormElement } from "./fields/ASPField";
 
 export type ElementsType =
+  | "ASPField"
   | "TextField"
   | "TitleField"
   | "SubTitleField"
@@ -61,6 +63,7 @@ type FormElementsType = {
   [key in ElementsType]: FormElement;
 };
 export const FormElements: FormElementsType = {
+  ASPField: ASPFieldFormElement,
   TextField: TextFieldFormElement,
   TitleField: TitleFieldFormElement,
   SubTitleField: SubTitleFieldFormElement,
