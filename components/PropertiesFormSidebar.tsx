@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import useDesigner from "./hooks/useDesigner";
-import { FormElement, FormElementInstance, FormElements } from "./FormElements";
+import { FormElementInstance, FormElements } from "./FormElements";
 import { AiOutlineClose } from "react-icons/ai";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";

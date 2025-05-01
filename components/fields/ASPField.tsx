@@ -11,7 +11,6 @@ import useDesigner from "../hooks/useDesigner";
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { LuHeading1 } from "react-icons/lu";
-import SidebarBtnElement from "../SidebarBtnElement";
 
 const type: ElementsType = "TitleField";
 
