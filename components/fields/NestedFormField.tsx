@@ -131,7 +131,7 @@ export const NestedFormFieldFormElement: FormElement = {
                 <label className="text-sm">Nested Form Field</label>
                 <div className="bg-gray-100 p-4 rounded-md border border-dashed border-gray-300">
                     <p className="text-gray-500 text-sm">
-                        Select a published form to embed its fields.
+                        Select a publishd form to embed its fields.
                     </p>
                     {/* UI for selecting a form */}
                     <PublishedFormsDropdown onFormSelect={handleFormSelect} />
