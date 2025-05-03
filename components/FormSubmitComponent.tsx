@@ -7,6 +7,8 @@ import { HiCursorClick } from "react-icons/hi";
 import { toast } from "./ui/use-toast";
 import { ImSpinner2 } from "react-icons/im";
 import { SubmitForm } from "@/actions/form";
+import { redirect } from "next/navigation";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";  // added on 07-04-2025 by uma for submit message on same page
 
 function FormSubmitComponent({ formUrl, content }: { content: FormElementInstance[]; formUrl: string }) {
   const formValues = useRef<{ [key: string]: string }>({});
@@ -15,6 +17,7 @@ function FormSubmitComponent({ formUrl, content }: { content: FormElementInstanc
 
   const [submitted, setSubmitted] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [successMessage, setSuccessMessage] = useState("");  // added on 07-04-2025 by uma for submit message on same page
 
   const validateForm: () => boolean = useCallback(() => {
     for (const field of content) {
@@ -54,6 +57,12 @@ function FormSubmitComponent({ formUrl, content }: { content: FormElementInstanc
       const jsonContent = JSON.stringify(formValues.current);
       await SubmitForm(formUrl, jsonContent);
       setSubmitted(true);
+
+      // Clear + re-render form
+      formValues.current = {};
+      setRenderKey(new Date().getTime());
+      setSuccessMessage("Form submitted successfully!");  // added on 07-04-2025 by uma for submit message on same page
+
     } catch (error) {
       toast({
         title: "Error",
@@ -64,15 +73,17 @@ function FormSubmitComponent({ formUrl, content }: { content: FormElementInstanc
   };
 
   if (submitted) {
-    return (
-      <div className="flex justify-center w-full h-full items-center p-8">
-        <div className="max-w-[620px] flex flex-col gap-4 flex-grow bg-background w-full p-8 overflow-y-auto border shadow-xl shadow-blue-700 rounded">
-          <h1 className="text-2xl font-bold">Form submitted</h1>
-          <p className="text-muted-foreground">Thank you for submitting the form, you can close this page now.</p>
-        </div>
-      </div>
-    );
+     // commented on 07-04-2025 by uma for submit message on same page
+    // return (
+    //   <div className="flex justify-center w-full h-full items-center p-8">
+    //     <div className="max-w-[620px] flex flex-col gap-4 flex-grow bg-background w-full p-8 overflow-y-auto border shadow-xl shadow-blue-700 rounded">
+    //       <h1 className="text-2xl font-bold">Form submitted</h1>
+    //       <p className="text-muted-foreground">Thank you for submitting the form, you can close this page now.</p>
+    //     </div>
+    //   </div>
+    // );
   }
+
 
   return (
     <div className="flex justify-center w-full h-full items-center p-8">
@@ -80,6 +91,15 @@ function FormSubmitComponent({ formUrl, content }: { content: FormElementInstanc
         key={renderKey}
         className="max-w-[620px] flex flex-col gap-4 flex-grow bg-background w-full p-8 overflow-y-auto border shadow-xl shadow-blue-700 rounded"
       >
+         {/* // added on 07-04-2025 by uma for submit message on same page  */}
+        {successMessage && (
+          <Alert variant="default" className="bg-green-100 border-green-300 text-green-800">
+            <AlertTitle>Success</AlertTitle>
+            <AlertDescription>{successMessage}</AlertDescription>
+            <button onClick={() => setSuccessMessage("")} className="absolute top-2 right-2 text-green-600 hover:text-green-800">✕</button>
+          </Alert>
+        )}
+
         {content.map((element) => {
           const FormElement = FormElements[element.type].formComponent;
           return (
