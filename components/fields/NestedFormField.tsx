@@ -114,35 +114,31 @@ const PublishedFormsDropdown = ({ onFormSelect }: { onFormSelect: (formId: strin
 
 // React component name starts with uppercase
 const NestedFormFieldComponent = ({ elementInstance }: { elementInstance: FormElementInstance }) => {
-    const [selectedFormFields, setSelectedFormFields] = useState<FormField[]>([]);
+    const selectedNestedFields = elementInstance.extraAttributes?.selectedNestedFields || [];
 
-    const handleFormSelect = async (formId: string) => {
-        const fields = await fetchFormFields(formId);
-        const updatedElement = {
-            ...elementInstance,
-            extraAttributes: {
-                ...elementInstance.extraAttributes,
-                selectedFormId: formId,
-            },
-        };
-        setSelectedFormFields(fields);
-    };
+    if (selectedNestedFields.length === 0) {
+        return (
+            <div className="flex flex-col gap-2 w-full">
+                <label className="text-sm">Nested Form Field</label>
+                <div className="bg-gray-100 p-4 rounded-md border border-dashed border-gray-300">
+                    <p className="text-gray-500 text-sm">
+                        No fields selected from nested form.
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-2 w-full">
-            <label className="text-sm">Nested Form Field</label>
+            <label className="text-sm">Nested Form Fields</label>
             <div className="bg-gray-100 p-4 rounded-md border border-dashed border-gray-300">
-                <p className="text-gray-500 text-sm">
-                    Select a published form to embed its fields.
-                </p>
-                <PublishedFormsDropdown onFormSelect={handleFormSelect} />
-                <div className="mt-2 flex flex-col gap-1 text-black">
-                    {selectedFormFields.map((field) => (
-                        <div key={field.id} className="border rounded p-2 text-black">
-                            {field.extraAttributes?.label || "Unnamed Field"}
+                <div className="flex flex-col gap-2">
+                    {selectedNestedFields.map((field: FormField) => (
+                        <div key={field.id} className="border rounded p-2">
+                            {field.extraAttributes?.label || "Unnamed Field"} ({field.type})
                         </div>
                     ))}
-                    Fields Placeholder
                 </div>
             </div>
         </div>
@@ -154,14 +150,14 @@ export const NestedFormFieldFormElement: FormElement = {
     construct: (id: string): FormElementInstance => ({
         id,
         type,
-        extraAttributes,
+        extraAttributes: { selectedFormId: null, selectedNestedFields: [] },
     }),
     designerBtnElement: {
         icon: MdOutlineCategory,
         label: "Nested Form",
     },
     designerComponent: NestedFormFieldComp,
-    formComponent: NestedFormFieldComponent,
+    formComponent: NestedFormFieldComp,
     propertiesComponent: NestedFormFieldPropsPanel,
     validate: () => true,
 };
