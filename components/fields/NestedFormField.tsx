@@ -115,13 +115,19 @@ const PublishedFormsDropdown = ({ onFormSelect }: { onFormSelect: (formId: strin
 // React component name starts with uppercase
 const NestedFormFieldComponent = ({ elementInstance }: { elementInstance: FormElementInstance }) => {
     const selectedNestedFields = elementInstance.extraAttributes?.selectedNestedFields || [];
+    const selectedFormName = elementInstance.extraAttributes?.selectedFormName;
+    const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
+
+    const handleChange = (fieldId: string, value: string) => {
+        setFieldValues(prev => ({ ...prev, [fieldId]: value }));
+    };
 
     if (selectedNestedFields.length === 0) {
         return (
             <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm">Nested Form Field</label>
                 <div className="bg-gray-100 p-4 rounded-md border border-dashed border-gray-300">
-                    <p className="text-gray-500 text-sm">
+                    <p className="text-gray-500 text-sm text-black">
                         No fields selected from nested form.
                     </p>
                 </div>
@@ -130,20 +136,53 @@ const NestedFormFieldComponent = ({ elementInstance }: { elementInstance: FormEl
     }
 
     return (
-        <div className="flex flex-col gap-2 w-full">
-            <label className="text-sm">Nested Form Fields</label>
-            <div className="bg-gray-100 p-4 rounded-md border border-dashed border-gray-300">
-                <div className="flex flex-col gap-2">
-                    {selectedNestedFields.map((field: FormField) => (
-                        <div key={field.id} className="border rounded p-2">
-                            {field.extraAttributes?.label || "Unnamed Field"} ({field.type})
-                        </div>
-                    ))}
+        <div className="flex flex-col gap-4 w-full text-white">
+            {selectedFormName && (
+                <div className="text-md font-semibold text-blue-600 mb-2">
+                    Nested Form: {selectedFormName}
                 </div>
-            </div>
+            )}
+            {selectedNestedFields.map((field: FormField) => {
+                const value = fieldValues[field.id] || "";
+                const label = field.extraAttributes?.label || "Unnamed Field";
+
+                if (field.type === "TextField") {
+                    return (
+                        <div key={field.id} className="flex flex-col gap-1">
+                            <span className="text-sm font-medium">{label}</span>
+                            <div key={field.id} className="relative">
+                                <input
+                                    id={field.id}
+                                    type="text"
+                                    value={value}
+                                    onChange={(e) => handleChange(field.id, e.target.value)}
+                                    className="w-full border p-2 rounded placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder={label}
+                                />
+                                {value === "" && (
+                                    <label
+                                        htmlFor={field.id}
+                                        className="absolute left-3 top-2 text-white-400 text-sm pointer-events-none"
+                                    >
+                                        {label}
+                                    </label>
+                                )}
+                            </div>
+                        </div>
+                    );
+                }
+
+                // Fallback for non-TextField types
+                return (
+                    <div key={field.id} className="border rounded p-2 bg-gray-50 text-sm">
+                        {label} ({field.type}) — unsupported yet.
+                    </div>
+                );
+            })}
         </div>
     );
 };
+
 
 export const NestedFormFieldFormElement: FormElement = {
     type,
@@ -156,8 +195,8 @@ export const NestedFormFieldFormElement: FormElement = {
         icon: MdOutlineCategory,
         label: "Nested Form",
     },
-    designerComponent: NestedFormFieldComp,
-    formComponent: NestedFormFieldComp,
+    designerComponent: NestedFormFieldComponent,
+    formComponent: NestedFormFieldComponent,
     propertiesComponent: NestedFormFieldPropsPanel,
     validate: () => true,
 };

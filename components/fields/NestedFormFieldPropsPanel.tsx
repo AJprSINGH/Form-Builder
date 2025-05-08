@@ -88,11 +88,14 @@ export default function NestedFormFieldPropsPanel({
 
     const handleFormSelect = (formId: string) => {
         setSelectedFormId(formId);
+        const selectedFormName = publishedForms.find(form => form.id === formId)?.name || "";
+        console.log("Selected form:", selectedFormName);
         const updatedElement = {
             ...elementInstance,
             extraAttributes: {
                 ...elementInstance.extraAttributes,
                 selectedFormId: formId,
+                selectedFormName,
             },
         };
         console.log("Updating element with selected field:", updatedElement);
@@ -109,11 +112,14 @@ export default function NestedFormFieldPropsPanel({
 
     useEffect(() => {
         if (selectedFormId) {
+            const selectedFormName = publishedForms.find(form => form.id === selectedFormId)?.name || "";
+
             const updatedElement = {
                 ...elementInstance,
                 extraAttributes: {
                     ...elementInstance.extraAttributes,
                     selectedFormId,
+                    selectedFormName,
                     selectedNestedFields: formFields.filter(field => selectedFields.includes(field.id)),
                 },
             };
