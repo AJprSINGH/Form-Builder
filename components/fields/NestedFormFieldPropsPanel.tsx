@@ -182,10 +182,9 @@ export default function NestedFormFieldPropsPanel({
                         {!loadingFields && formFields.length > 0 && (
                             <ul className="space-y-1">
                                 {formFields.map((field) => {
-                                    const fieldId = String(field.id); // Always use string
+                                    const fieldId = String(field.id); 
 
-                                    const value = formSubmissionData[field] ?? "—";
-                                    console.log("Field ID:", field.id, "String ID:", String(field.id), "Submission Keys:", Object.keys(formSubmissionData));
+                                    const value = formSubmissionData[field.questionId];
 
 
                                     return (
@@ -202,7 +201,7 @@ export default function NestedFormFieldPropsPanel({
                                                 </label>
                                             </div>
                                             <div className="ml-6 text-sm text-muted-foreground">
-                                                Value: <span className="text-white">{value}</span>
+                                                Value: <span className="text-white">{value ? value : "—"}</span>
                                             </div>
                                         </li>
                                     );
@@ -220,3 +219,4 @@ export default function NestedFormFieldPropsPanel({
         </div>
     );
 }
+
