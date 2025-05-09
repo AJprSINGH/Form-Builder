@@ -36,6 +36,20 @@ async function fetchFormFields(formId: string): Promise<any[]> {
         return [];
     }
 }
+async function fetchFormSubmissions(formId: string): Promise<Record<string, string>> {
+    try {
+        const response = await fetch(`/api/forms/${formId}/submissions/first`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("Fetched submission data:", data);
+        return data;
+    } catch (error) {
+        console.error(`Error fetching submissions for form ${formId}:`, error);
+        return {};
+    }
+}
 
 type PropertiesComponentProps = {
     elementInstance: FormElementInstance;
@@ -52,6 +66,7 @@ export default function NestedFormFieldPropsPanel({
     const [formFields, setFormFields] = useState<any[]>([]); // New state for form fields
     const [loadingFields, setLoadingFields] = useState(false); // New state for loading fields
     const [selectedFields, setSelectedFields] = useState<string[]>([]); // Tracks selected fields
+    const [formSubmissionData, setFormSubmissionData] = useState<Record<string, string>>({});
 
     useEffect(() => {
         const loadForms = async () => {
@@ -67,24 +82,29 @@ export default function NestedFormFieldPropsPanel({
         loadForms();
     }, []);
 
-    // New useEffect to fetch fields when selectedFormId changes
     useEffect(() => {
         if (selectedFormId) {
-            const loadFields = async () => {
+            const loadFieldsAndSubmissions = async () => {
                 setLoadingFields(true);
                 try {
-                    const fields = await fetchFormFields(selectedFormId);
+                    const [fields, submissions] = await Promise.all([
+                        fetchFormFields(selectedFormId),
+                        fetchFormSubmissions(selectedFormId)
+                    ]);
                     setFormFields(fields);
+                    setFormSubmissionData(submissions);
                 } catch (error) {
-                    console.error("Error fetching form fields:", error);
-                    setFormFields([]); // Clear fields on error
+                    console.error("Error loading fields or submissions:", error);
+                    setFormFields([]);
+                    setFormSubmissionData({});
                 } finally {
                     setLoadingFields(false);
                 }
             };
-            loadFields();
+            loadFieldsAndSubmissions();
         }
-    }, [selectedFormId]); // Trigger this effect when selectedFormId changes
+    }, [selectedFormId]);
+
 
     const handleFormSelect = (formId: string) => {
         setSelectedFormId(formId);
@@ -126,6 +146,10 @@ export default function NestedFormFieldPropsPanel({
             updateElement(updatedElement);
         }
     }, [selectedFields, selectedFormId, formFields]);
+    useEffect(() => {
+        console.log("Form Fields:", formFields.map(f => f.id));
+        console.log("Submission Data Keys:", Object.keys(formSubmissionData));
+    }, [formFields, formSubmissionData]);
 
     return (
         <div className="flex flex-col gap-2">
@@ -157,19 +181,34 @@ export default function NestedFormFieldPropsPanel({
                         {loadingFields && <div>Loading fields...</div>}
                         {!loadingFields && formFields.length > 0 && (
                             <ul className="space-y-1">
-                                {formFields.map((field) => (
-                                    <li key={field.id} className="flex items-center gap-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedFields.includes(field.id)}
-                                            onChange={() => toggleFieldSelection(field.id)}
-                                            id={`field-${field.id}`}
-                                        />
-                                        <label htmlFor={`field-${field.id}`}>
-                                            {field.extraAttributes?.label || "Unnamed Field"} ({field.type})
-                                        </label>
-                                    </li>
-                                ))}
+                                {formFields.map((field) => {
+                                    const fieldId = String(field.id); // Always use string
+
+                                    const value = formSubmissionData[field] ?? "—";
+                                    console.log("Field ID:", field.id, "String ID:", String(field.id), "Submission Keys:", Object.keys(formSubmissionData));
+
+
+                                    return (
+                                        <li key={fieldId} className="flex flex-col gap-1 p-1 border rounded-md">
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedFields.includes(fieldId)}
+                                                    onChange={() => toggleFieldSelection(fieldId)}
+                                                    id={`field-${fieldId}`}
+                                                />
+                                                <label htmlFor={`field-${fieldId}`}>
+                                                    <strong>{field.extraAttributes?.label || "Unnamed Field"}</strong> ({field.type})
+                                                </label>
+                                            </div>
+                                            <div className="ml-6 text-sm text-muted-foreground">
+                                                Value: <span className="text-white">{value}</span>
+                                            </div>
+                                        </li>
+                                    );
+                                })}
+
+
                             </ul>
                         )}
                         {!loadingFields && formFields.length === 0 && selectedFormId && (
