@@ -42,6 +42,7 @@ async function fetchFormSubmissions(formId: string): Promise<Record<string, stri
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
+        console.log("Response: ",response);
         const data = await response.json();
         console.log("Fetched submission data:", data);
         return data;
@@ -141,6 +142,7 @@ export default function NestedFormFieldPropsPanel({
                     selectedFormId,
                     selectedFormName,
                     selectedNestedFields: formFields.filter(field => selectedFields.includes(field.id)),
+                    selectedFormSubmissionData: formSubmissionData, 
                 },
             };
             updateElement(updatedElement);
@@ -184,7 +186,7 @@ export default function NestedFormFieldPropsPanel({
                                 {formFields.map((field) => {
                                     const fieldId = String(field.id); 
 
-                                    const value = formSubmissionData[field.questionId];
+                                    const value = formSubmissionData[field.id];
 
 
                                     return (

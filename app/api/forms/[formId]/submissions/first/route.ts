@@ -25,7 +25,10 @@ export async function GET(request: Request, { params }: { params: { formId: stri
             return NextResponse.json({}, { status: 200 }); // No submission yet
         }
         console.log("Submission content:", submission.content); // Log the content for debugging
-        return NextResponse.json(submission.content);
+        const data=JSON.parse(submission.content);
+        console.log("Parsed submission content:", data); 
+
+        return NextResponse.json(data);
     } catch (error) {
         console.error("Error fetching form submission:", error);
         return NextResponse.json({ error: 'Failed to fetch submission data' }, { status: 500 });

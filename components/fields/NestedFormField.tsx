@@ -116,7 +116,10 @@ const PublishedFormsDropdown = ({ onFormSelect }: { onFormSelect: (formId: strin
 const NestedFormFieldComponent = ({ elementInstance }: { elementInstance: FormElementInstance }) => {
     const selectedNestedFields = elementInstance.extraAttributes?.selectedNestedFields || [];
     const selectedFormName = elementInstance.extraAttributes?.selectedFormName;
+    const formSubmissionData = elementInstance.extraAttributes?.selectedFormSubmissionData || {};
     const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
+
+    console.log("Selected Nested Submissions:", formSubmissionData);
 
     const handleChange = (fieldId: string, value: string) => {
         setFieldValues(prev => ({ ...prev, [fieldId]: value }));
@@ -147,10 +150,12 @@ const NestedFormFieldComponent = ({ elementInstance }: { elementInstance: FormEl
                 const label = field.extraAttributes?.label || "Unnamed Field";
 
                 if (field.type === "TextField") {
+                    const options = formSubmissionData[field.id] || ' ';
+                    console.log("Options:", options);
                     return (
                         <div key={field.id} className="flex flex-col gap-1">
                             <span className="text-sm font-medium">{label}</span>
-                            <div key={field.id} className="relative">
+                            {/* <div key={field.id} className="relative">
                                 <input
                                     id={field.id}
                                     type="text"
@@ -167,7 +172,22 @@ const NestedFormFieldComponent = ({ elementInstance }: { elementInstance: FormEl
                                         {label}
                                     </label>
                                 )}
-                            </div>
+                            </div> */}
+                <div key={field.id} className="relative">
+                <select
+                    id={field.id}
+                    value={value}
+                    onChange={(e) => handleChange(field.id, e.target.value)}
+                    className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="" disabled>
+                        Select {label}
+                    </option>
+                    <option key={field.id} value={options}>
+                            {options}
+                        </option>
+                </select>
+            </div>
                         </div>
                     );
                 }
