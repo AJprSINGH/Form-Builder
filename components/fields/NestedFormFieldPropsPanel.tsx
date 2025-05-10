@@ -36,19 +36,17 @@ async function fetchFormFields(formId: string): Promise<any[]> {
         return [];
     }
 }
-async function fetchFormSubmissions(formId: string): Promise<Record<string, string>> {
+async function fetchFormSubmissions(formId: string): Promise<Record<string, string>[]> {
     try {
         const response = await fetch(`/api/forms/${formId}/submissions/first`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        console.log("Response: ",response);
         const data = await response.json();
-        console.log("Fetched submission data:", data);
         return data;
     } catch (error) {
         console.error(`Error fetching submissions for form ${formId}:`, error);
-        return {};
+        return [];
     }
 }
 
@@ -67,7 +65,7 @@ export default function NestedFormFieldPropsPanel({
     const [formFields, setFormFields] = useState<any[]>([]); // New state for form fields
     const [loadingFields, setLoadingFields] = useState(false); // New state for loading fields
     const [selectedFields, setSelectedFields] = useState<string[]>([]); // Tracks selected fields
-    const [formSubmissionData, setFormSubmissionData] = useState<Record<string, string>>({});
+    const [formSubmissionData, setFormSubmissionData] = useState<Record<string, string>[]>([]);
 
     useEffect(() => {
         const loadForms = async () => {
@@ -97,7 +95,7 @@ export default function NestedFormFieldPropsPanel({
                 } catch (error) {
                     console.error("Error loading fields or submissions:", error);
                     setFormFields([]);
-                    setFormSubmissionData({});
+                    setFormSubmissionData([]);
                 } finally {
                     setLoadingFields(false);
                 }
@@ -142,7 +140,7 @@ export default function NestedFormFieldPropsPanel({
                     selectedFormId,
                     selectedFormName,
                     selectedNestedFields: formFields.filter(field => selectedFields.includes(field.id)),
-                    selectedFormSubmissionData: formSubmissionData, 
+                    selectedFormSubmissionData: formSubmissionData,
                 },
             };
             updateElement(updatedElement);
@@ -185,10 +183,11 @@ export default function NestedFormFieldPropsPanel({
                             <ul className="space-y-1">
                                 {formFields.map((field) => {
                                     const fieldId = String(field.id); 
-
-                                    const value = formSubmissionData[field.id];
-
-
+                                    // Get the value from the first submission if available
+                                    const value = formSubmissionData.length > 0
+                                        ? formSubmissionData[0][field.id]
+                                        : undefined;
+                                        
                                     return (
                                         <li key={fieldId} className="flex flex-col gap-1 p-1 border rounded-md">
                                             <div className="flex items-center gap-2">

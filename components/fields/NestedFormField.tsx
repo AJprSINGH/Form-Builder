@@ -116,7 +116,10 @@ const PublishedFormsDropdown = ({ onFormSelect }: { onFormSelect: (formId: strin
 const NestedFormFieldComponent = ({ elementInstance }: { elementInstance: FormElementInstance }) => {
     const selectedNestedFields = elementInstance.extraAttributes?.selectedNestedFields || [];
     const selectedFormName = elementInstance.extraAttributes?.selectedFormName;
-    const formSubmissionData = elementInstance.extraAttributes?.selectedFormSubmissionData || {};
+    let formSubmissionData = elementInstance.extraAttributes?.selectedFormSubmissionData;
+    if (!Array.isArray(formSubmissionData)) {
+        formSubmissionData = formSubmissionData ? [formSubmissionData] : [];
+    }
     const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
 
     console.log("Selected Nested Submissions:", formSubmissionData);
@@ -147,47 +150,26 @@ const NestedFormFieldComponent = ({ elementInstance }: { elementInstance: FormEl
             )}
             {selectedNestedFields.map((field: FormField) => {
                 const value = fieldValues[field.id] || "";
+                const collectedValues: string[] = formSubmissionData.map((submission: Record<string, any>) => submission[field.id]).filter((v: any) => v !== undefined && v !== null);
                 const label = field.extraAttributes?.label || "Unnamed Field";
 
                 if (field.type === "TextField") {
-                    const options = formSubmissionData[field.id] || ' ';
-                    console.log("Options:", options);
                     return (
                         <div key={field.id} className="flex flex-col gap-1">
                             <span className="text-sm font-medium">{label}</span>
-                            {/* <div key={field.id} className="relative">
-                                <input
+                            <div key={field.id} className="relative">
+                                <select
                                     id={field.id}
-                                    type="text"
                                     value={value}
                                     onChange={(e) => handleChange(field.id, e.target.value)}
-                                    className="w-full border p-2 rounded placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder={label}
-                                />
-                                {value === "" && (
-                                    <label
-                                        htmlFor={field.id}
-                                        className="absolute left-3 top-2 text-white-400 text-sm pointer-events-none"
-                                    >
-                                        {label}
-                                    </label>
-                                )}
-                            </div> */}
-                <div key={field.id} className="relative">
-                <select
-                    id={field.id}
-                    value={value}
-                    onChange={(e) => handleChange(field.id, e.target.value)}
-                    className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                    <option value="" disabled>
-                        Select {label}
-                    </option>
-                    <option key={field.id} value={options}>
-                            {options}
-                        </option>
-                </select>
-            </div>
+                                    className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="" disabled>
+                                        Select {label}
+                                    </option>
+                                    {collectedValues.map((val, index) => <option key={`${field.id}-${index}`} value={val}>{val}</option>)}
+                                </select>
+                            </div>
                         </div>
                     );
                 }

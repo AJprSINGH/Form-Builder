@@ -9,25 +9,22 @@ export async function GET(request: Request, { params }: { params: { formId: stri
     }
 
     try {
-        const submission = await prisma.formSubmissions.findFirst({
+        const submissions = await prisma.formSubmissions.findMany({
             where: {
                 formId: formId,
             },
             orderBy: {
-                createdAt: 'desc', // or 'asc' to get the earliest one
+                createdAt: 'desc',
             },
             select: {
-                content: true, // assuming 'values' is JSON
+                content: true,
             },
         });
 
-        if (!submission) {
+        if (!submissions || submissions.length === 0) {
             return NextResponse.json({}, { status: 200 }); // No submission yet
         }
-        console.log("Submission content:", submission.content); // Log the content for debugging
-        const data=JSON.parse(submission.content);
-        console.log("Parsed submission content:", data); 
-
+        const data = submissions.map(submission => JSON.parse(submission.content));
         return NextResponse.json(data);
     } catch (error) {
         console.error("Error fetching form submission:", error);
