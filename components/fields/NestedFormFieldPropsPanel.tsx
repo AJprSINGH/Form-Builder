@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 // Assume this function exists and fetches published forms
 async function fetchPublishedForms(): Promise<{ id: string; name: string }[]> {
     try {
-        const response = await fetch("/api/published-forms"); // Call the API endpoint
+        const response = await fetch("/api/published-forms");
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
