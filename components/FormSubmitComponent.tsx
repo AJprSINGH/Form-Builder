@@ -72,7 +72,7 @@ function FormSubmitComponent({ formUrl, content }: { content: FormElementInstanc
   };
 
   if (submitted) {
-     // commented on 07-04-2025 by uma for submit message on same page
+    // commented on 07-04-2025 by uma for submit message on same page
     // return (
     //   <div className="flex justify-center w-full h-full items-center p-8">
     //     <div className="max-w-[620px] flex flex-col gap-4 flex-grow bg-background w-full p-8 overflow-y-auto border shadow-xl shadow-blue-700 rounded">
@@ -90,7 +90,7 @@ function FormSubmitComponent({ formUrl, content }: { content: FormElementInstanc
         key={renderKey}
         className="max-w-[620px] flex flex-col gap-4 flex-grow bg-background w-full p-8 overflow-y-auto border shadow-xl shadow-blue-700 rounded"
       >
-         {/* // added on 07-04-2025 by uma for submit message on same page  */}
+        {/* // added on 07-04-2025 by uma for submit message on same page  */}
         {successMessage && (
           <Alert variant="default" className="bg-green-100 border-green-300 text-green-800">
             <AlertTitle>Success</AlertTitle>

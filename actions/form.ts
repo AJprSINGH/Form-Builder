@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { formSchema, formSchemaType } from "@/schemas/form";
 import { currentUser } from "@clerk/nextjs";
 
-class UserNotFoundErr extends Error {}
+class UserNotFoundErr extends Error { }
 
 export async function GetFormStats() {
   const user = await currentUser();
@@ -150,22 +150,66 @@ export async function GetFormContentByUrl(formUrl: string) {
 }
 
 export async function SubmitForm(formUrl: string, content: string) {
-  return await prisma.form.update({
-    data: {
-      submissions: {
-        increment: 1,
-      },
-      FormSubmissions: {
-        create: {
-          content,
-        },
-      },
-    },
+  // Step 1: Find the form being submitted
+  const parentForm = await prisma.form.findFirst({
     where: {
       shareURL: formUrl,
       published: true,
     },
   });
+
+  if (!parentForm) throw new Error("Form not found");
+
+  // Step 2: Create new submission
+  const newSubmission = await prisma.formSubmissions.create({
+    data: {
+      formId: parentForm.id, 
+      content,
+    },
+  });
+
+  // Step 3: Increment submissions counter
+  await prisma.form.update({
+    where: { id: parentForm.id },
+    data: {
+      submissions: { increment: 1 },
+    },
+  });
+
+  // Step 4: Find forms that have NestedForm referring to this form
+  const allForms = await prisma.form.findMany();
+
+  for (const form of allForms) {
+    let contentUpdated = false;
+    const parsedContent = JSON.parse(form.content || "[]");
+
+    for (const element of parsedContent) {
+      if (
+        element.type === "NestedForm" &&
+        String(element.extraAttributes?.selectedFormId) === String(parentForm.id)
+      ) {
+        // Ensure submission data array exists
+        if (!Array.isArray(element.extraAttributes.selectedFormSubmissionData)) {
+          element.extraAttributes.selectedFormSubmissionData = [];
+        }
+
+        // Push the new submission content (parsed)
+        element.extraAttributes.selectedFormSubmissionData.push(JSON.parse(content));
+        contentUpdated = true;
+      }
+    }
+
+    if (contentUpdated) {
+      await prisma.form.update({
+        where: { id: form.id },
+        data: {
+          content: JSON.stringify(parsedContent),
+        },
+      });
+    }
+  }
+
+  return newSubmission;
 }
 
 export async function GetFormWithSubmissions(id: number) {
