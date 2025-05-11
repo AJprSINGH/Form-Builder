@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
-import { json } from 'node:stream/consumers';
 export async function GET() {
     try {
         const publishedForms = await prisma.form.findMany({
