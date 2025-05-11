@@ -161,7 +161,7 @@ export default function NestedFormFieldPropsPanel({
             {loading && <div>Loading published forms...</div>}
             {!loading && (
                 <Select onValueChange={handleFormSelect} value={selectedFormId || ""}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full h-full">
                         <SelectValue placeholder="Select a published form" />
                     </SelectTrigger>
                     <SelectContent>
@@ -182,12 +182,12 @@ export default function NestedFormFieldPropsPanel({
                         {!loadingFields && formFields.length > 0 && (
                             <ul className="space-y-1">
                                 {formFields.map((field) => {
-                                    const fieldId = String(field.id); 
+                                    const fieldId = String(field.id);
                                     // Get the value from the first submission if available
                                     const value = formSubmissionData.length > 0
                                         ? formSubmissionData[0][field.id]
                                         : undefined;
-                                        
+
                                     return (
                                         <li key={fieldId} className="flex flex-col gap-1 p-1 border rounded-md">
                                             <div className="flex items-center gap-2">
