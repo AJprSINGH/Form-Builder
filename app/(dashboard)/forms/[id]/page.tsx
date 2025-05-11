@@ -13,27 +13,13 @@ import { format, formatDistance } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 
-async function FormDetailPage({
-  params,
-}: {
-  params: {
-    id: string;
-  };
-}) {
+async function FormDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
   const form = await GetFormById(Number(id));
-  if (!form) {
-    throw new Error("form not found");
-  }
+  if (!form) throw new Error("form not found");
 
   const { visits, submissions } = form;
-
-  let submissionRate = 0;
-
-  if (visits > 0) {
-    submissionRate = (submissions / visits) * 100;
-  }
-
+  const submissionRate = visits > 0 ? (submissions / visits) * 100 : 0;
   const bounceRate = 100 - submissionRate;
 
   return (
@@ -50,43 +36,11 @@ async function FormDetailPage({
         </div>
       </div>
       <div className="w-full pt-8 gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 container">
-        <StatsCard
-          title="Total visits"
-          icon={<LuView className="text-blue-600" />}
-          helperText="All time form visits"
-          value={visits.toLocaleString() || ""}
-          loading={false}
-          className="shadow-md shadow-blue-600"
-        />
-
-        <StatsCard
-          title="Total submissions"
-          icon={<FaWpforms className="text-yellow-600" />}
-          helperText="All time form submissions"
-          value={submissions.toLocaleString() || ""}
-          loading={false}
-          className="shadow-md shadow-yellow-600"
-        />
-
-        <StatsCard
-          title="Submission rate"
-          icon={<HiCursorClick className="text-green-600" />}
-          helperText="Visits that result in form submission"
-          value={submissionRate.toLocaleString() + "%" || ""}
-          loading={false}
-          className="shadow-md shadow-green-600"
-        />
-
-        <StatsCard
-          title="Bounce rate"
-          icon={<TbArrowBounce className="text-red-600" />}
-          helperText="Visits that leaves without interacting"
-          value={bounceRate.toLocaleString() + "%" || ""}
-          loading={false}
-          className="shadow-md shadow-red-600"
-        />
+        <StatsCard title="Total visits" icon={<LuView className="text-blue-600" />} helperText="All time form visits" value={visits.toLocaleString() || ""} loading={false} className="shadow-md shadow-blue-600" />
+        <StatsCard title="Total submissions" icon={<FaWpforms className="text-yellow-600" />} helperText="All time form submissions" value={submissions.toLocaleString() || ""} loading={false} className="shadow-md shadow-yellow-600" />
+        <StatsCard title="Submission rate" icon={<HiCursorClick className="text-green-600" />} helperText="Visits that result in form submission" value={submissionRate.toLocaleString() + "%" || ""} loading={false} className="shadow-md shadow-green-600" />
+        <StatsCard title="Bounce rate" icon={<TbArrowBounce className="text-red-600" />} helperText="Visits that leaves without interacting" value={bounceRate.toLocaleString() + "%" || ""} loading={false} className="shadow-md shadow-red-600" />
       </div>
-
       <div className="container pt-10">
         <SubmissionsTable id={form.id} />
       </div>
@@ -96,16 +50,13 @@ async function FormDetailPage({
 
 export default FormDetailPage;
 
-type Row = { [key: string]: string } & {
+type Row = { [key: string]: any } & {
   submittedAt: Date;
 };
 
 async function SubmissionsTable({ id }: { id: number }) {
   const form = await GetFormWithSubmissions(id);
-
-  if (!form) {
-    throw new Error("form not found");
-  }
+  if (!form) throw new Error("form not found");
 
   const formElements = JSON.parse(form.content) as FormElementInstance[];
   const columns: {
@@ -116,6 +67,8 @@ async function SubmissionsTable({ id }: { id: number }) {
   }[] = [];
 
   formElements.forEach((element) => {
+    console.log("element in form: ", element);
+
     switch (element.type) {
       case "TextField":
       case "NumberField":
@@ -132,6 +85,21 @@ async function SubmissionsTable({ id }: { id: number }) {
           type: element.type,
         });
         break;
+
+      case "NestedForm":
+        const nestedFields = element.extraAttributes?.selectedNestedFields as FormElementInstance[];
+        nestedFields?.forEach((nestedField) => {
+          const nestedFieldId = `${element.id}_${nestedField.id}`;
+          const nestedFieldLabel = `${element.extraAttributes?.selectedFormName || "Nested Form"} - ${nestedField.extraAttributes?.label || "Field"}`;
+          columns.push({
+            id: nestedFieldId,
+            label: nestedFieldLabel,
+            required: nestedField.extraAttributes?.required,
+            type: nestedField.type,
+          });
+        });
+        break;
+
       default:
         break;
     }
@@ -140,10 +108,26 @@ async function SubmissionsTable({ id }: { id: number }) {
   const rows: Row[] = [];
   form.FormSubmissions.forEach((submission) => {
     const content = JSON.parse(submission.content);
-    rows.push({
-      ...content,
+
+    const rowData: Row = {
       submittedAt: submission.createdAt,
+    };
+
+    // Flatten top-level fields
+    Object.keys(content).forEach((key) => {
+      const value = content[key];
+      if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+        Object.keys(value).forEach((nestedKey) => {
+          const flatKey = `${key}_${nestedKey}`;
+          rowData[flatKey] = value[nestedKey];
+        });
+      } else {
+        rowData[key] = value;
+      }
     });
+
+
+    rows.push(rowData);
   });
 
   return (
@@ -154,9 +138,7 @@ async function SubmissionsTable({ id }: { id: number }) {
           <TableHeader>
             <TableRow>
               {columns.map((column) => (
-                <TableHead key={column.id} className="uppercase">
-                  {column.label}
-                </TableHead>
+                <TableHead key={column.id} className="uppercase">{column.label}</TableHead>
               ))}
               <TableHead className="text-muted-foreground text-right uppercase">Submitted at</TableHead>
             </TableRow>
@@ -168,9 +150,7 @@ async function SubmissionsTable({ id }: { id: number }) {
                   <RowCell key={column.id} type={column.type} value={row[column.id]} />
                 ))}
                 <TableCell className="text-muted-foreground text-right">
-                  {formatDistance(row.submittedAt, new Date(), {
-                    addSuffix: true,
-                  })}
+                  {formatDistance(row.submittedAt, new Date(), { addSuffix: true })}
                 </TableCell>
               </TableRow>
             ))}
@@ -188,7 +168,7 @@ function RowCell({ type, value }: { type: ElementsType; value: string }) {
     case "DateField":
       if (!value) break;
       const date = new Date(value);
-      node = <Badge variant={"outline"}>{format(date, "dd/MM/yyyy")}</Badge>;
+      node = <Badge variant="outline">{format(date, "dd/MM/yyyy")}</Badge>;
       break;
     case "CheckboxField":
       const checked = value === "true";

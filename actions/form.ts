@@ -163,7 +163,7 @@ export async function SubmitForm(formUrl: string, content: string) {
   // Step 2: Create new submission
   const newSubmission = await prisma.formSubmissions.create({
     data: {
-      formId: parentForm.id, 
+      formId: parentForm.id,
       content,
     },
   });
@@ -204,6 +204,20 @@ export async function SubmitForm(formUrl: string, content: string) {
         where: { id: form.id },
         data: {
           content: JSON.stringify(parsedContent),
+        },
+      });
+      console.log("Nested form submission created"),
+        console.log("Updated form content with nested submission data.");
+      console.log("Updated form content: ", parsedContent);
+      console.log("Updated form ID: ", form.id);
+
+
+
+      // 4d. Increment that parent form’s submission counter
+      await prisma.form.update({
+        where: { id: form.id },
+        data: {
+          submissions: { increment: 1 },
         },
       });
     }
