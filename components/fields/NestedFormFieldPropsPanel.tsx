@@ -164,7 +164,7 @@ export default function NestedFormFieldPropsPanel({
                     <SelectTrigger className="w-full h-full">
                         <SelectValue placeholder="Select a published form" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-64 overflow-y-auto">
                         {publishedForms.map((form) => (
                             <SelectItem key={form.id} value={form.id}>
                                 {form.name}

@@ -11,8 +11,7 @@ export async function GET() {
                 name: true,
             },
         });
-        console.log("Fetching published forms...");
-
+        
         return NextResponse.json(publishedForms);
     } catch (error) {
         console.error("Error fetching published forms:", error);
