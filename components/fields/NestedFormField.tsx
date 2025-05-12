@@ -2,6 +2,7 @@ import { MdOutlineCategory } from "react-icons/md";
 import { ElementsType, FormElement, FormElementInstance } from "../FormElements";
 import { useEffect, useState } from "react";
 import NestedFormFieldPropsPanel from "./NestedFormFieldPropsPanel";
+import useDesigner from "../hooks/useDesigner";
 
 const type: ElementsType = "NestedForm";
 
@@ -113,7 +114,13 @@ const PublishedFormsDropdown = ({ onFormSelect }: { onFormSelect: (formId: strin
 };
 
 // React component name starts with uppercase
-const NestedFormFieldComponent = ({ elementInstance }: { elementInstance: FormElementInstance }) => {
+const NestedFormFieldComponent = ({ elementInstance,
+    submitValue
+}: {
+    elementInstance: FormElementInstance;
+    submitValue?: (key: string, value: any) => void;
+}) => {
+    const { updateElement } = useDesigner();
     const selectedNestedFields = elementInstance.extraAttributes?.selectedNestedFields || [];
     const selectedFormName = elementInstance.extraAttributes?.selectedFormName;
     let formSubmissionData = elementInstance.extraAttributes?.selectedFormSubmissionData;
@@ -122,10 +129,24 @@ const NestedFormFieldComponent = ({ elementInstance }: { elementInstance: FormEl
     }
     const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
 
-    console.log("Selected Nested Submissions:", formSubmissionData);
+    //console.log("Selected Nested Submissions:", formSubmissionData);
 
     const handleChange = (fieldId: string, value: string) => {
-        setFieldValues(prev => ({ ...prev, [fieldId]: value }));
+        const newValues = { ...fieldValues, [fieldId]: value };
+        setFieldValues(newValues);
+
+
+        updateElement(elementInstance.id, {
+            ...elementInstance,
+            extraAttributes: {
+                ...elementInstance.extraAttributes,
+                fieldValues: newValues,
+            },
+        });
+
+        if (submitValue) {
+            submitValue(elementInstance.id, newValues);
+        }
     };
 
     if (selectedNestedFields.length === 0) {
@@ -152,27 +173,24 @@ const NestedFormFieldComponent = ({ elementInstance }: { elementInstance: FormEl
                 const value = fieldValues[field.id] || "";
                 const collectedValues: string[] = formSubmissionData.map((submission: Record<string, any>) => submission[field.id]).filter((v: any) => v !== undefined && v !== null);
                 const label = field.extraAttributes?.label || "Unnamed Field";
-
-                if (field.type === "TextField") {
-                    return (
-                        <div key={field.id} className="flex flex-col gap-1">
-                            <span className="text-sm font-medium">{label}</span>
-                            <div key={field.id} className="relative">
-                                <select
-                                    id={field.id}
-                                    value={value}
-                                    onChange={(e) => handleChange(field.id, e.target.value)}
-                                    className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <option value="" disabled>
-                                        Select {label}
-                                    </option>
-                                    {collectedValues.map((val, index) => <option key={`${field.id}-${index}`} value={val}>{val}</option>)}
-                                </select>
-                            </div>
+                return (
+                    <div key={field.id} className="flex flex-col gap-1">
+                        <span className="text-sm font-medium">{label}</span>
+                        <div key={field.id} className="relative">
+                            <select
+                                id={field.id}
+                                value={value}
+                                onChange={(e) => handleChange(field.id, e.target.value)}
+                                className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="" disabled>
+                                    Select {label}
+                                </option>
+                                {collectedValues.map((val, index) => <option key={`${field.id}-${index}`} value={val}>{val}</option>)}
+                            </select>
                         </div>
-                    );
-                }
+                    </div>
+                );
 
                 // Fallback for non-TextField types
                 return (

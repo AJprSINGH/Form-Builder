@@ -67,8 +67,6 @@ async function SubmissionsTable({ id }: { id: number }) {
   }[] = [];
 
   formElements.forEach((element) => {
-    console.log("element in form: ", element);
-
     switch (element.type) {
       case "TextField":
       case "NumberField":
@@ -116,7 +114,15 @@ async function SubmissionsTable({ id }: { id: number }) {
     // Flatten top-level fields
     Object.keys(content).forEach((key) => {
       const value = content[key];
-      if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+
+      // Handle NestedForm specially
+      if (value && value.type === "NestedForm" && value.values) {
+        Object.entries(value.values).forEach(([nestedKey, nestedValue]) => {
+          const flatKey = `${key}_${nestedKey}`;
+          rowData[flatKey] = nestedValue;
+        });
+      } else if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+        // fallback if needed for other object types
         Object.keys(value).forEach((nestedKey) => {
           const flatKey = `${key}_${nestedKey}`;
           rowData[flatKey] = value[nestedKey];
@@ -125,6 +131,7 @@ async function SubmissionsTable({ id }: { id: number }) {
         rowData[key] = value;
       }
     });
+
 
 
     rows.push(rowData);

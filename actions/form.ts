@@ -196,6 +196,24 @@ export async function SubmitForm(formUrl: string, content: string) {
         // Push the new submission content (parsed)
         element.extraAttributes.selectedFormSubmissionData.push(JSON.parse(content));
         contentUpdated = true;
+        // Create a new submission for the parent form
+        const parsedSubmissionContent = JSON.parse(content);
+        const nestedSubmissionContent: { [key: string]: any } = {};
+
+        // Create flattened key-value pairs for nested form fields
+        element.extraAttributes.selectedNestedFields.forEach((field: any) => {
+          const nestedKey = `${element.id}_${field.id}`;
+          nestedSubmissionContent[nestedKey] = parsedSubmissionContent[field.id];
+          console.log("Nested key: ", nestedKey);
+          console.log("Nested value: ", parsedSubmissionContent[field.id]);
+        });
+        // Create a new submission entry for the parent form
+        // await prisma.formSubmissions.create({
+        //   data: {
+        //     formId: form.id,
+        //     content: JSON.stringify(nestedSubmissionContent)
+        //   }
+        // });
       }
     }
 

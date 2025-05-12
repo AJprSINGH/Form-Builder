@@ -7,16 +7,22 @@ import { HiCursorClick } from "react-icons/hi";
 import { toast } from "./ui/use-toast";
 import { ImSpinner2 } from "react-icons/im";
 import { SubmitForm } from "@/actions/form";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";  // added on 07-04-2025 by uma for submit message on same page
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-function FormSubmitComponent({ formUrl, content }: { content: FormElementInstance[]; formUrl: string }) {
-  const formValues = useRef<{ [key: string]: string }>({});
+function FormSubmitComponent({
+  formUrl,
+  content,
+}: {
+  content: FormElementInstance[];
+  formUrl: string;
+}) {
+  const formValues = useRef<{ [key: string]: any }>({});
   const formErrors = useRef<{ [key: string]: boolean }>({});
   const [renderKey, setRenderKey] = useState(new Date().getTime());
 
   const [submitted, setSubmitted] = useState(false);
   const [pending, startTransition] = useTransition();
-  const [successMessage, setSuccessMessage] = useState("");  // added on 07-04-2025 by uma for submit message on same page
+  const [successMessage, setSuccessMessage] = useState("");
 
   const validateForm: () => boolean = useCallback(() => {
     for (const field of content) {
@@ -35,33 +41,49 @@ function FormSubmitComponent({ formUrl, content }: { content: FormElementInstanc
     return true;
   }, [content]);
 
-  const submitValue = useCallback((key: string, value: string) => {
+  const submitValue = useCallback((key: string, value: any) => {
     formValues.current[key] = value;
   }, []);
 
   const submitForm = async () => {
     formErrors.current = {};
     const validForm = validateForm();
+
     if (!validForm) {
       setRenderKey(new Date().getTime());
       toast({
         title: "Error",
-        description: "please check the form for errors",
+        description: "Please check the form for errors",
         variant: "destructive",
       });
       return;
     }
 
     try {
-      const jsonContent = JSON.stringify(formValues.current);
-      await SubmitForm(formUrl, jsonContent);
-      setSubmitted(true);
+      // Collect all field values into a flat object
+      const finalValues: { [key: string]: any } = {};
 
-      // Clear + re-render form
+      for (const element of content) {
+        const value = formValues.current[element.id];
+
+        // If it's a NestedForm, store the full nested object
+        if (element.type === "NestedForm") {
+          finalValues[element.id] = {
+            type: "NestedForm",
+            values: value || {},
+          };
+        } else {
+          finalValues[element.id] = value ?? "";
+        }
+      }
+
+      const jsonContent = JSON.stringify(finalValues);
+      await SubmitForm(formUrl, jsonContent);
+
+      setSubmitted(true);
       formValues.current = {};
       setRenderKey(new Date().getTime());
-      setSuccessMessage("Form submitted successfully!");  // added on 07-04-2025 by uma for submit message on same page
-
+      setSuccessMessage("Form submitted successfully!");
     } catch (error) {
       toast({
         title: "Error",
@@ -71,31 +93,25 @@ function FormSubmitComponent({ formUrl, content }: { content: FormElementInstanc
     }
   };
 
-  if (submitted) {
-    // commented on 07-04-2025 by uma for submit message on same page
-    // return (
-    //   <div className="flex justify-center w-full h-full items-center p-8">
-    //     <div className="max-w-[620px] flex flex-col gap-4 flex-grow bg-background w-full p-8 overflow-y-auto border shadow-xl shadow-blue-700 rounded">
-    //       <h1 className="text-2xl font-bold">Form submitted</h1>
-    //       <p className="text-muted-foreground">Thank you for submitting the form, you can close this page now.</p>
-    //     </div>
-    //   </div>
-    // );
-  }
-
-
   return (
     <div className="flex justify-center w-full h-full items-center p-8">
       <div
         key={renderKey}
         className="max-w-[620px] flex flex-col gap-4 flex-grow bg-background w-full p-8 overflow-y-auto border shadow-xl shadow-blue-700 rounded"
       >
-        {/* // added on 07-04-2025 by uma for submit message on same page  */}
         {successMessage && (
-          <Alert variant="default" className="bg-green-100 border-green-300 text-green-800">
+          <Alert
+            variant="default"
+            className="bg-green-100 border-green-300 text-green-800"
+          >
             <AlertTitle>Success</AlertTitle>
             <AlertDescription>{successMessage}</AlertDescription>
-            <button onClick={() => setSuccessMessage("")} className="absolute top-2 right-2 text-green-600 hover:text-green-800">✕</button>
+            <button
+              onClick={() => setSuccessMessage("")}
+              className="absolute top-2 right-2 text-green-600 hover:text-green-800"
+            >
+              ✕
+            </button>
           </Alert>
         )}
 
@@ -111,6 +127,7 @@ function FormSubmitComponent({ formUrl, content }: { content: FormElementInstanc
             />
           );
         })}
+
         <Button
           className="mt-8"
           onClick={() => {
