@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
+import { GetFormsNew } from "@/actions/form";
 
 // Assume this function exists and fetches published forms
 async function fetchPublishedForms(): Promise<{ id: string; name: string }[]> {
@@ -70,8 +71,13 @@ export default function NestedFormFieldPropsPanel({
     useEffect(() => {
         const loadForms = async () => {
             try {
-                const forms = await fetchPublishedForms();
-                setPublishedForms(forms);
+                const formsData = await GetFormsNew(); // No need to call .json() anymore
+                setPublishedForms(
+                    formsData.map((form: { id: number; name: string }) => ({
+                        id: String(form.id),
+                        name: form.name,
+                    }))
+                );
             } catch (error) {
                 console.error("Error fetching published forms:", error);
             } finally {
