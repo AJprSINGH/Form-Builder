@@ -92,47 +92,7 @@ function FormSubmitComponent({
       });
     }
   };
- // added uma on 14-05-2025
-  const replceOption = async (selectedFormId: string, selectedFormInputId: string) => {
-    try {
-        const response = await fetch(`/api/forms/${selectedFormId}/submissions/first`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        // Find the select input by id (selectedFormInputId)
-        const selectElement = document.getElementById(selectedFormInputId) as HTMLSelectElement | null;
-        if (selectElement) {
-            // Make options empty first
-            selectElement.innerHTML = "";
-        }
-        if (selectElement && Array.isArray(data)) {
-            // Remove existing options
-            selectElement.innerHTML = "";
-            // Add a default empty option
-            const defaultOption = document.createElement("option");
-            defaultOption.value = "";
-            defaultOption.text = "Select an option";
-            selectElement.appendChild(defaultOption);
-            // Populate new options from data
-            data.forEach((item: any) => {
-          // If item is an object with a value, use it; otherwise, use the string directly
-          const value = typeof item === "object" && item !== null
-              ? item[selectedFormInputId] || Object.values(item)[0]
-              : item;
-          const option = document.createElement("option");
-          option.value = value;
-          option.text = value;
-          selectElement.appendChild(option);
-            });
-        }
-        // return data;
-    } catch (error) {
-        console.error(`Error fetching submissions for form ${selectedFormId}:`, error);
-        return [];
-    }
-  }
-  // end added uma on 14-05-2025
+
   return (
     <div className="flex justify-center w-full h-full items-center p-8">
       <div
@@ -157,14 +117,6 @@ function FormSubmitComponent({
 
         {content.map((element) => {
           const FormElement = FormElements[element.type].formComponent;
-          // added by uma on 14-05-2025
-          if(element.type === "NestedForm") {
-            const selectedFormId = element.extraAttributes?.selectedFormId;
-            const selectedFormInputId = element.extraAttributes?.selectedNestedFields[0].id;
-            replceOption(selectedFormId,selectedFormInputId);
-            // console.log("NestedForm", selectedFormInputId);
-          }
-          // end of added by uma 14-05-2025
           return (
             <FormElement
               key={element.id}
