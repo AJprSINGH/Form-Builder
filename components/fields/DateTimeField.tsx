@@ -121,14 +121,34 @@ function FormComponent({
                     <Calendar
                         mode="single"
                         selected={date}
-                        onSelect={(date) => {
-                            setDate(date);
+                        onSelect={(selectedDate) => {
+                            if (!selectedDate) return;
+                            const now = new Date();
+
+                            // Convert `now` to IST
+                            const istOffset = 5.5 * 60; // IST is UTC+5:30
+                            const localOffset = now.getTimezoneOffset();
+                            const istTime = new Date(now.getTime() + (istOffset + localOffset) * 60 * 1000);
+
+                            // Combine selected date with IST time
+                            const combinedDate = new Date(
+                                selectedDate.getFullYear(),
+                                selectedDate.getMonth(),
+                                selectedDate.getDate(),
+                                istTime.getHours(),
+                                istTime.getMinutes(),
+                                istTime.getSeconds()
+                            );
+
+                            setDate(combinedDate);
+
                             if (!submitValue) return;
-                            const value = date?.toUTCString() || "";
+                            const value = format(combinedDate, "dd/MM/yyyy' T 'HH:mm:ss");
                             const valid = DateTimeFieldFormElement.validate(element, value);
                             setError(!valid);
                             submitValue(element.id, value);
                         }}
+
                         initialFocus
                     />
                 </PopoverContent>

@@ -164,11 +164,6 @@ const NestedFormFieldComponent = ({ elementInstance,
 
     return (
         <div className="flex flex-col gap-4 w-full text-white">
-            {selectedFormName && (
-                <div className="text-md font-semibold text-blue-600 mb-2">
-                    Nested Form: {selectedFormName}
-                </div>
-            )}
             {selectedNestedFields.map((field: FormField) => {
                 const value = fieldValues[field.id] || "";
                 const collectedValues: string[] = formSubmissionData.map((submission: Record<string, any>) => submission[field.id]).filter((v: any) => v !== undefined && v !== null);
