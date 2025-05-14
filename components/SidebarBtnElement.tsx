@@ -5,11 +5,6 @@ import { useDraggable } from "@dnd-kit/core";
 import { cn } from "@/lib/utils";
 
 function SidebarBtnElement({ formElement }: { formElement: FormElement }) {
-  if (!formElement?.designerBtnElement) {
-    console.warn("Missing designerBtnElement in formElement", formElement);
-    return null;
-  }
-  const { label, icon: Icon } = formElement.designerBtnElement;
   const draggable = useDraggable({
     id: `designer-btn-${formElement.type}`,
     data: {
@@ -17,6 +12,11 @@ function SidebarBtnElement({ formElement }: { formElement: FormElement }) {
       isDesignerBtnElement: true,
     },
   });
+  if (!formElement?.designerBtnElement) {
+    console.warn("Missing designerBtnElement in formElement", formElement);
+    return null;
+  }
+  const { label, icon: Icon } = formElement.designerBtnElement;
 
   return (
     <Button
