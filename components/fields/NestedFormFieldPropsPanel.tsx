@@ -173,10 +173,10 @@ export default function NestedFormFieldPropsPanel({
                     </SelectContent>
                 </Select>
             )}
-            {/* Placeholder to display selected form's fields */}
+
             {selectedFormId && (
                 <div className="mt-4">
-                    <Label className="text-sm">Fields from Selected Form:</Label>
+                    <Label className="text-sm">Fields Form:</Label>
                     <div className="text-sm text-muted-foreground">
                         {loadingFields && <div>Loading fields...</div>}
                         {!loadingFields && formFields.length > 0 && (
