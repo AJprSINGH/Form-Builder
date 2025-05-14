@@ -73,8 +73,9 @@ async function SubmissionsTable({ id }: { id: number }) {
       case "TextAreaField":
       case "DateField":
       case "SelectField":
-      //case "RadioField": // added by uma 07-04-2025
-      //case "TimeField":
+      case "RadioField":
+      case "DateTimeField":
+      case "FileField":
       case "CheckboxField":
         columns.push({
           id: element.id,
