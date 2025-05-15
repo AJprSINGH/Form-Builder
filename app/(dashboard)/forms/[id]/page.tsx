@@ -75,6 +75,7 @@ async function SubmissionsTable({ id }: { id: number }) {
       case "SelectField":
       case "RadioField":
       case "DateTimeField":
+      case "TimeField":
       case "FileField":
       case "CheckboxField":
         columns.push({

@@ -27,6 +27,7 @@ function FormElementsSidebar() {
         <SidebarBtnElement formElement={FormElements.CheckboxField} />
         <SidebarBtnElement formElement={FormElements.RadioField} />
         <SidebarBtnElement formElement={FormElements.DateTimeField} />
+        <SidebarBtnElement formElement={FormElements.TimeField} />
         <SidebarBtnElement formElement={FormElements.FileField} />
       </div>
     </div>

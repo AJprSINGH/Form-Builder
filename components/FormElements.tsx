@@ -15,7 +15,7 @@ import { RadioFieldFormElement } from "./fields/RadioField";
 import { DateTimeFieldFormElement } from "./fields/DateTimeField";
 import { FileFieldFormElement } from "./fields/FileField";
 import { NestedFormFieldFormElement as NestedFormElement } from "./fields/NestedFormField";
-
+import { TimeFieldFormElement } from "./fields/TimeField";
 
 export type ElementsType =
   | "ASPField"
@@ -32,6 +32,7 @@ export type ElementsType =
   | "CheckboxField"
   | "RadioField"
   | "DateTimeField"
+  | "TimeField"
   | "FileField"
   | "NestedFormField"
   | "NestedForm"
@@ -90,6 +91,7 @@ export const FormElements: FormElementsType = {
   CheckboxField: CheckboxFieldFormElement,
   RadioField: RadioFieldFormElement,
   DateTimeField: DateTimeFieldFormElement,
+  TimeField: TimeFieldFormElement,
   FileField: FileFieldFormElement,
   NestedFormField: NestedFormFieldFormElement,
   NestedForm: NestedFormElement,
