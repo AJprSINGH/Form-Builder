@@ -25,6 +25,7 @@ model Form {
 
   shareURL        String            @unique @default(uuid())
   FormSubmissions FormSubmissions[]
+  reports Report[]
 
   @@unique([name, userId])
 }
@@ -36,4 +37,18 @@ model FormSubmissions {
   form      Form     @relation(fields: [formId], references: [id])
 
   content String
+}
+
+model Report {
+  id        Int      @id @default(autoincrement())
+  name      String
+  formId    Int
+  reportUrl String   @unique
+  config    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@index([formId])
 }

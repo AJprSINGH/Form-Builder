@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BiRightArrowAlt } from "react-icons/bi";
 import { FaEdit } from "react-icons/fa";
+import { TbReportAnalytics } from "react-icons/tb";
 
 export default function Home() {
   return (
@@ -23,7 +24,16 @@ export default function Home() {
         <CardStatsWrapper />
       </Suspense>
       <Separator className="my-6" />
-      <h2 className="text-4xl font-bold col-span-2">Your forms</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-4xl font-bold">Your forms</h2>
+        <Link
+          href="/reports/dashboard"
+          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+        >
+          <TbReportAnalytics className="text-lg" />
+          My Reports
+        </Link>
+      </div>
       <Separator className="my-6" />
       <div className="grid gric-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <CreateFormBtn />
