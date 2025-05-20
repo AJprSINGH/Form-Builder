@@ -12,7 +12,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { format, formatDistance } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { TbReportAnalytics } from "react-icons/tb"; 
 async function FormDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
   const form = await GetFormById(Number(id));
@@ -27,7 +29,15 @@ async function FormDetailPage({ params }: { params: { id: string } }) {
       <div className="py-10 border-b border-muted">
         <div className="flex justify-between container">
           <h1 className="text-4xl font-bold truncate">{form.name}</h1>
-          <VisitBtn shareUrl={form.shareURL} />
+          <div className="flex flex-col gap-2">
+            <VisitBtn shareUrl={form.shareURL} />
+            <Button asChild className="bg-neutral-100 hover:neutral-400">
+              <Link href={`/reports/dashboard?formId=${form.id}`} className="flex items-center gap-2">
+                <TbReportAnalytics className="text-lg" />
+                Form Reports
+              </Link>
+            </Button>
+          </div>  
         </div>
       </div>
       <div className="py-4 border-b border-muted">

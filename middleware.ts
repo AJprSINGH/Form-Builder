@@ -15,6 +15,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - submit (public form submission route)
      */
-    "/((?!_next/static|_next/image|favicon.ico|submit|api).*)",
+    "/((?!_next/static|_next/image|favicon.ico|submit|api|reports_new).*)",
   ],
 };

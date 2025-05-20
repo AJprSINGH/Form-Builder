@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { GetReportsNew } from "@/actions/form";
+import { useSearchParams } from 'next/navigation';
+
 interface Report {
   id: number;
   name: string;
@@ -14,6 +16,9 @@ interface Report {
 }
 
 export default function ReportsDashboardPage() {
+  const searchParams = useSearchParams();
+  const formId = searchParams.get('formId');
+
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +27,11 @@ export default function ReportsDashboardPage() {
     const fetchReports = async () => {
       try {
         const res = await GetReportsNew();
-        setReports(res);
+        // Filter reports if formId is provided
+        const filteredReports = formId
+          ? res.filter(report => report.formId === parseInt(formId))
+          : res;
+        setReports(filteredReports);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching reports:', err);
@@ -32,7 +41,7 @@ export default function ReportsDashboardPage() {
     };
 
     fetchReports();
-  }, []);
+  }, [formId]);
 
   if (loading) {
     return (
@@ -56,10 +65,12 @@ export default function ReportsDashboardPage() {
     );
   }
 
+  const pageTitle = formId ? "Form Reports" : "Published Reports";
+
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Published Reports</h1>
+        <h1 className="text-2xl font-bold">{pageTitle}</h1>
         <Link href="/reports" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
           Create New Report
         </Link>
@@ -68,7 +79,9 @@ export default function ReportsDashboardPage() {
       {reports.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <h3 className="text-lg font-medium text-gray-600">No reports found</h3>
-          <p className="mt-2 text-gray-500">Create your first report to get started.</p>
+          <p className="mt-2 text-gray-500">
+            {formId ? "Create your first report for this form to get started." : "Create your first report to get started."}
+          </p>
         </div>
       ) : (
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
@@ -105,14 +118,14 @@ export default function ReportsDashboardPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <Link
-                      href={`/reports/${report.reportUrl}`}
+                      href={`/reports_new/${report.reportUrl}`}
                       className="text-blue-600 hover:text-blue-900 mr-4"
                     >
                       View
                     </Link>
                     <button
                       onClick={() => {
-                        navigator.clipboard.writeText(`${window.location.origin}/reports/${report.reportUrl}`);
+                        navigator.clipboard.writeText(`${window.location.origin}/reports_new/${report.reportUrl}`);
                         alert('Report URL copied to clipboard!');
                       }}
                       className="text-green-600 hover:text-green-900"

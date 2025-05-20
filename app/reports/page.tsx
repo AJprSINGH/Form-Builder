@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import ChartRenderer from '@/components/ChartRenderer';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { GetFormsNew } from "@/actions/form";
 
 interface FormField {
     id: string;
@@ -23,15 +24,14 @@ export default function ReportsPage() {
     const [chartData, setChartData] = useState<any[]>([]);
     const [reportName, setReportName] = useState('');
     const [isPublishing, setIsPublishing] = useState(false);
-    const [isGenerating, setIsGenerating] = useState(false);
-
 
     useEffect(() => {
         // Fetch published forms
         const fetchForms = async () => {
             try {
-                const res = await axios.get('/api/published-forms');
-                setForms(res.data);
+                const res = await GetFormsNew();
+                console.log("entered published forms!!");
+                setForms(res);
             } catch (error) {
                 console.error('Error fetching forms:', error);
             }
@@ -62,7 +62,7 @@ export default function ReportsPage() {
 
     const generateReport = async () => {
         if (!selectedForm || !xKey || !yKey) return;
-        setIsGenerating(true);
+
         try {
             const res = await axios.post('/api/report-data-new', {
                 formId: selectedForm,
@@ -73,8 +73,6 @@ export default function ReportsPage() {
             setChartData(res.data.data);
         } catch (error) {
             console.error('Error generating report:', error);
-        } finally {
-            setIsGenerating(false);
         }
     };
 
@@ -95,7 +93,7 @@ export default function ReportsPage() {
             });
 
             if (res.data.reportUrl) {
-                router.push(`/reports/${res.data.reportUrl}`);
+                router.push(`/reports_new/${res.data.reportUrl}`);
             }
         } catch (error) {
             console.error('Error publishing report:', error);
@@ -144,12 +142,8 @@ export default function ReportsPage() {
                     </select>
                 </div>
 
-                <button
-                    className="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-gray-400"
-                    onClick={generateReport}
-                    disabled={isGenerating || !selectedForm || !xKey || !yKey}
-                >
-                    {isGenerating ? 'Generating...' : 'Generate Report'}
+                <button className="px-4 py-2 bg-blue-600 text-white rounded" onClick={generateReport}>
+                    Generate Report
                 </button>
 
                 {chartData.length > 0 && (
