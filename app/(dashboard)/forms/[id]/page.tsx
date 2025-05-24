@@ -32,7 +32,7 @@ async function FormDetailPage({ params }: { params: { id: string } }) {
           <div className="flex flex-col gap-2">
             <VisitBtn shareUrl={form.shareURL} />
             <Button asChild className="bg-neutral-100 hover:neutral-400">
-              <Link href={`/reports/dashboard?formId=${form.id}`} className="flex items-center gap-2">
+              <Link href={`/reports/dashboard/${form.id}`} className="flex items-center gap-2">
                 <TbReportAnalytics className="text-lg" />
                 Form Reports
               </Link>

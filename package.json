@@ -54,6 +54,7 @@
     "eslint-config-next": "13.4.19",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.510.0",
     "next": "13.5.1",
     "next-themes": "^0.2.1",
@@ -72,6 +73,7 @@
     "tailwindcss": "3.3.3",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.2.2",
+    "xlsx": "^0.18.5",
     "zod": "^3.22.2"
   },
   "devDependencies": {
