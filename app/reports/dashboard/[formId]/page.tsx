@@ -127,8 +127,7 @@ function FormReportPage({ params }: { params: { formId: string } }) {
     }));
   };
 
-  const exportToExcel = () => {
-    // Create a formatted data array with proper column headers
+    const exportToExcel = () => {
     const formattedData = filteredRows.map(row => {
       const formattedRow: { [key: string]: any } = {};
       columns.forEach(column => {
@@ -256,15 +255,22 @@ function FormReportPage({ params }: { params: { formId: string } }) {
     return <TableCell>{node}</TableCell>;
   }
 
-  if (!form) return <div>Loading...</div>;
+  if (!form) return ( <div className="h-screen w-full flex items-center justify-center">
+    <div className="text-xl font-semibold">Loading...</div>
+  </div>
+  );
 
   return (
     <div className="container py-10">
       <h1 className="text-4xl font-bold mb-8">{form.name}</h1>
       
       <div className="flex gap-2 mb-4">
-        <Button onClick={exportToExcel} variant="outline" size="sm">
-          Export XLSX
+        <Button 
+          onClick={exportToExcel} 
+          variant="outline" 
+          size="sm"
+        >
+        Export XLSX
         </Button>
         <Button onClick={exportToCSV} variant="outline" size="sm">
           Export CSV
