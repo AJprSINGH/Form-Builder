@@ -2,7 +2,7 @@
 
 import { GetFormWithSubmissions } from "@/actions/form";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { format, formatDistance } from "date-fns";
+import { format} from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ElementsType, FormElementInstance } from "@/components/FormElements";
@@ -183,7 +183,13 @@ function FormReportPage({ params }: { params: { formId: string } }) {
       // Create a temporary div for PDF generation
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = reportElement.innerHTML;
-      
+      tempDiv.style.position = 'fixed';
+      tempDiv.style.top = '-9999px';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.width = '210mm';
+      tempDiv.style.maxWidth = '100%';
+      tempDiv.style.zIndex = '-1'; 
+
       // Remove search inputs from the temporary div
       const inputs = tempDiv.getElementsByTagName('input');
       while (inputs.length > 0) {
